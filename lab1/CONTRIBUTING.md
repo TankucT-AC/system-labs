@@ -60,7 +60,7 @@
 cmake --preset gcc-debug        # конфигурация (GCC + Ninja)
 cmake --build out/gcc-debug     # сборка
 
-./out/gcc-debug/program_a/program_a --color green   # запуск из каталога lab1 (лог: program_a/program_a.log)
+./out/gcc-debug/bin/program_a --color green   # запуск из каталога lab1 (лог: program_a.log)
 ```
 
 Автотесты (`ctest`) появятся вместе с развитием лабораторных; после их добавления запросы на слияние без прохождения тестов рассматриваться не будут.
