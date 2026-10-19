@@ -15,7 +15,7 @@ private:
     std::string logFileName;
 
 public:
-    Logger(bool initVerbose = false, std::string initLogFileName = "program_a/program_a.log")
+    Logger(bool initVerbose = false, std::string initLogFileName = "")
         : verbose(initVerbose)
         , logFileName(initLogFileName) {
     }

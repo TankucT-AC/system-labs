@@ -8,7 +8,8 @@
 #include <string>
 #include <termios.h>
 #include <unistd.h>
-#include "Logger.h"
+
+class Logger;
 
 class Terminal {
 private:

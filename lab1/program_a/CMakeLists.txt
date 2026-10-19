@@ -3,7 +3,4 @@
 
 add_executable(program_a
   program_a.cpp
-  Terminal.h
-  Terminal.cpp
-  Logger.h
 )

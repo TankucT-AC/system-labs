@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Magomed Gadzhiumarov
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-#include "Terminal.h"
-#include "Logger.h"
+#include <Terminal/Terminal.h>
+#include <Logger/Logger.h>
 #include <algorithm>
 #include <format>
 #include <iostream>
