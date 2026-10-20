@@ -20,7 +20,6 @@ std::filesystem::path exe_dir() {
         return std::filesystem::current_path();
     return path.parent_path();
 }
-} // namespace utils
 
 int ipc_worker(char key) {
     std::string pipe_path = "/tmp/program_a_fifo";
@@ -45,13 +44,14 @@ int ipc_worker(char key) {
     close(fd);
     return 0;
 }
+} // namespace utils
+
 
 int main(int argc, char *argv[]) {
     Logger logger; // по умолчанию ничего не логирует.
     Terminal terminal(argc, argv, logger); // я ленивая жопа, поэтому делать
                                            // дополнительный конструктор не буду
 
-    // ТЕСТОВЫЙ БЛОК КОДА
     auto pathProgramA = utils::exe_dir() / "program_a";
     if (!std::filesystem::exists(pathProgramA)) {
         std::cerr << "ERROR: program_a is not found!" << std::endl;
@@ -59,7 +59,8 @@ int main(int argc, char *argv[]) {
     }
 
     int pid = -1;
-    char *argvProgramA[] = {const_cast<char *>("alacritty"),
+    char *argvProgramA[] = {//
+        const_cast<char *>("alacritty"),
         const_cast<char *>("-e"),
         const_cast<char *>(pathProgramA.c_str()),
         NULL};
@@ -74,7 +75,6 @@ int main(int argc, char *argv[]) {
     if (pid < 0) {
         std::cerr << std::format("ERROR {}: failed to create program_a", pid);
     }
-    // ТЕСТОВЫЙ БЛОК КОДА (UNSAFE)
 
     terminal.enableRawMode();
     while (true) {
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
         if (key == 'q' || key == 'Q')
             break;
 
-        int err = ipc_worker(key);
+        int err = utils::ipc_worker(key);
         if (err != 0)
             break;
     }
