@@ -3,6 +3,7 @@
 
 #include <Logger/Logger.h>
 #include <Terminal/Terminal.h>
+#include <csignal>
 #include <fcntl.h>
 #include <filesystem>
 #include <format>
@@ -21,16 +22,7 @@ std::filesystem::path exe_dir() {
     return path.parent_path();
 }
 
-int ipc_worker(char key) {
-    std::string pipe_path = "/tmp/program_a_fifo";
-    mkfifo(pipe_path.data(), 0666);
-
-    int fd = open(pipe_path.data(), O_WRONLY | O_NONBLOCK);
-    if (fd < 0) {
-        std::cerr << "ERROR: Failed to open FIFO channel!" << std::endl;
-        return 1;
-    }
-
+int ipc_worker(int fd, char key) {
     std::string output_msg = std::format("key={}\n", key);
     ssize_t bytesWritten = write(fd, output_msg.data(), output_msg.size());
     if (bytesWritten < 0) {
@@ -41,13 +33,29 @@ int ipc_worker(char key) {
         }
         return 1;
     }
-    close(fd);
     return 0;
 }
 } // namespace utils
 
 
 int main(int argc, char *argv[]) {
+    // Блокируем SIGPIPE, чтобы он не убивал программу при попытки записи из пустого канала
+    struct sigaction sa{};
+    sa.sa_handler = SIG_IGN;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGPIPE, &sa, nullptr);
+
+    // Создаем FIFO канал
+    std::string pipe_path = "/tmp/program_a_fifo";
+    mkfifo(pipe_path.data(), 0666);
+    int fd = open(pipe_path.data(), O_WRONLY);
+    if (fd < 0) {
+        std::cerr << "ERROR: Failed to open FIFO channel!" << std::endl;
+        return 1;
+    }
+
+    
     Logger logger; // по умолчанию ничего не логирует.
     Terminal terminal(argc, argv, logger); // я ленивая жопа, поэтому делать
                                            // дополнительный конструктор не буду
@@ -58,7 +66,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int pid = -1;
+    pid_t pid = -1;
     char *argvProgramA[] = {//
         const_cast<char *>("alacritty"),
         const_cast<char *>("-e"),
@@ -94,8 +102,9 @@ int main(int argc, char *argv[]) {
         if (key == 'q' || key == 'Q')
             break;
 
-        int err = utils::ipc_worker(key);
+        int err = utils::ipc_worker(fd, key);
         if (err != 0)
             break;
     }
+    close(fd); // Закрываем FIFO канал
 }
