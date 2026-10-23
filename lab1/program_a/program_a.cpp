@@ -10,7 +10,6 @@
 #include <optional>
 #include <poll.h>
 #include <ranges>
-#include <sys/poll.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <thread>
@@ -52,11 +51,15 @@ void ipc_reader(const std::string &filename, Terminal &terminal,
     std::atomic<bool> &isRunning) {
     char buf[256];
 
-    int fd = open(filename.data(), O_RDONLY | O_NONBLOCK);
+    int fd = -1;
+    do {
+        fd = open(filename.data(), O_RDONLY | O_NONBLOCK);
+    } while (fd < 0 && errno == EINTR);
+    
     if (fd < 0) {
-        if (errno != EINTR)
-            return;
+        return;
     }
+    
     struct pollfd pfd;
     pfd.fd = fd;
     pfd.events = POLLIN;
