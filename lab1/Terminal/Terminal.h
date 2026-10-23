@@ -8,6 +8,7 @@
 #include <string>
 #include <termios.h>
 #include <unistd.h>
+#include <mutex>
 
 class Logger;
 
@@ -18,6 +19,7 @@ private:
     int terminalBackgroundColorCode;
     bool rawModeEnabled;
     Logger& termLogger;
+    std::mutex termMutex;
 
 public:
     explicit Terminal(int argc, char **argv, Logger& logger);

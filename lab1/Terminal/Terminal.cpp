@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <format>
 #include <iostream>
+#include <mutex>
 #include <stdexcept>
 #include <termios.h>
 
@@ -26,6 +27,7 @@ auto Terminal::findColorToKeyword(char keyword) {
 }
 
 void Terminal::updateTerminalColor(char keyword) {
+    std::lock_guard<std::mutex> lock(termMutex);
     if (keyword != ' ') {
         auto keyword_it = Terminal::findColorToKeyword(keyword);
         if (keyword_it == keyword_list.end())
@@ -37,11 +39,11 @@ void Terminal::updateTerminalColor(char keyword) {
             return;
 
         terminalBackgroundColorCode = command_it->value;
-        termLogger.logging(std::format("key={}", keyword));
     }
 
     std::string output_msg = std::format("\033]11;#{:06X}\033[0m", terminalBackgroundColorCode);
     std::cout << output_msg << std::flush;
+    termLogger.logging(std::format("key={}", keyword));
 }
 
 int Terminal::parseBackgroundColor(int argc, char **argv) {
