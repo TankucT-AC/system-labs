@@ -8,6 +8,7 @@ add_library(terminal
 
 target_link_libraries(program_a PUBLIC terminal)
 target_link_libraries(program_b PUBLIC terminal)
+target_link_libraries(program_c PUBLIC terminal)
 target_include_directories(terminal PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
 )
