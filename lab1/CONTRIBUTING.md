@@ -40,7 +40,7 @@
 - Соблюдайте стиль репозитория: форматирование через `clang-format` с файлом `.clang-format` (стиль KDE/ECM):
 
   ```bash
-  clang-format -i program_a/*.cpp program_a/*.h program_b/*.cpp program_c/*.cpp
+  clang-format -i program_a/*.cpp program_b/*.cpp program_c/*.cpp Terminal/*.cpp Terminal/*.h Logger/*.h
   ```
 
 - Сборка должна проходить без предупреждений компилятора; не подавляйте предупреждения без причины.
