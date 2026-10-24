@@ -16,7 +16,6 @@
 #include <unistd.h>
 
 std::optional<char> keyMessageParser(char buf[], ssize_t bytesRead) {
-    buf[bytesRead] = '\0';
     std::string_view command_msg(buf, bytesRead);
 
     while (!command_msg.empty()
