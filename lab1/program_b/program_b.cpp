@@ -45,16 +45,6 @@ int main(int argc, char *argv[]) {
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
     sigaction(SIGPIPE, &sa, nullptr);
-
-    // Создаем FIFO канал
-    std::string pipe_path = "/tmp/program_a_fifo";
-    mkfifo(pipe_path.data(), 0666);
-    int fd = open(pipe_path.data(), O_WRONLY);
-    if (fd < 0) {
-        std::cerr << "ERROR: Failed to open FIFO channel!" << std::endl;
-        return 1;
-    }
-
     
     Logger logger; // по умолчанию ничего не логирует.
     Terminal terminal(argc, argv, logger); // я ленивая жопа, поэтому делать
@@ -82,6 +72,15 @@ int main(int argc, char *argv[]) {
 
     if (pid < 0) {
         std::cerr << std::format("ERROR {}: failed to create program_a", pid);
+    }
+
+    // Создаем FIFO канал
+    std::string pipe_path = "/tmp/program_a_fifo";
+    mkfifo(pipe_path.data(), 0666);
+    int fd = open(pipe_path.data(), O_WRONLY);
+    if (fd < 0) {
+        std::cerr << "ERROR: Failed to open FIFO channel!" << std::endl;
+        return 1;
     }
 
     terminal.enableRawMode();
