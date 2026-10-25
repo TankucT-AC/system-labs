@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Magomed Gadzhiumarov
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #ifndef UTILS_H
 #define UTILS_H
 
