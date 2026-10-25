@@ -4,6 +4,7 @@
 #ifndef LOGGERS_H
 #define LOGGERS_H
 
+// STL
 #include <chrono>
 #include <fstream>
 #include <iostream>
@@ -24,8 +25,9 @@ public:
         if (!verbose)
             return;
 
-        auto now = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
-        std::string message = std::format("{:%Y-%m-%d %H:%M:%S} {}\n", now, msg);
+        auto nowUTC = std::chrono::floor<std::chrono::seconds>(std::chrono::system_clock::now());
+        auto localUTC = std::chrono::zoned_time{std::chrono::current_zone(), nowUTC};
+        std::string message = std::format("{:%Y-%m-%d %H:%M:%S} {}\n", localUTC, msg);
 
         std::ofstream logFileOfstream(logFileName, std::ios::app);
         if (logFileOfstream.is_open()) {
