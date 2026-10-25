@@ -1,42 +1,22 @@
 // SPDX-FileCopyrightText: 2026 Magomed Gadzhiumarov
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// Local libraries
 #include <Logger/Logger.h>
 #include <Terminal/Terminal.h>
-#include <csignal>
-#include <fcntl.h>
-#include <filesystem>
+#include <utils/utils.h>
+
+// STL
 #include <format>
 #include <iostream>
+#include <filesystem>
+
+// POSIX C
+#include <csignal>
+#include <fcntl.h>
 #include <spawn.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include <unistd.h>
-
-namespace utils {
-std::filesystem::path exe_dir() {
-    std::error_code ec;
-    auto path = std::filesystem::read_symlink("/proc/self/exe", ec);
-    if (ec)
-        return std::filesystem::current_path();
-    return path.parent_path();
-}
-
-int ipc_worker(int fd, char key) {
-    std::string output_msg = std::format("key={}\n", key);
-    ssize_t bytesWritten = write(fd, output_msg.data(), output_msg.size());
-    if (bytesWritten < 0) {
-        if (errno == EPIPE) {
-            std::cerr << "ERROR: all readers is dead!" << std::endl;
-        } else {
-            std::cerr << "ERROR: fail of write in FIFO channel" << std::endl;
-        }
-        return 1;
-    }
-    return 0;
-}
-} // namespace utils
-
 
 int main(int argc, char *argv[]) {
     // Блокируем SIGPIPE, чтобы он не убивал программу при попытки записи из пустого канала
@@ -47,8 +27,7 @@ int main(int argc, char *argv[]) {
     sigaction(SIGPIPE, &sa, nullptr);
     
     Logger logger; // по умолчанию ничего не логирует.
-    Terminal terminal(argc, argv, logger); // я ленивая жопа, поэтому делать
-                                           // дополнительный конструктор не буду
+    Terminal terminal(argc, argv, logger); // мне лень писать пустой конструктор
 
     auto pathProgramA = utils::exe_dir() / "program_a";
     if (!std::filesystem::exists(pathProgramA)) {
