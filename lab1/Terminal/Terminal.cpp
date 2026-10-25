@@ -1,13 +1,17 @@
 // SPDX-FileCopyrightText: 2026 Magomed Gadzhiumarov
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// Local libraries
 #include <Terminal/Terminal.h>
 #include <Logger/Logger.h>
+
+// STL
 #include <algorithm>
 #include <format>
 #include <iostream>
 #include <mutex>
-#include <stdexcept>
+
+// POSIX C
 #include <termios.h>
 
 auto Terminal::findCommandToColor(const std::string &color) {
@@ -51,11 +55,26 @@ int Terminal::parseBackgroundColor(int argc, char **argv) {
         return BackgroundColorCode::BLACK;
 
     if (argc != 3 || std::string_view(argv[1]) != "--color")
-        throw std::invalid_argument("Error: uncorrect arguments!!!");
+        return -1;
 
     auto it = findCommandToColor(argv[2]);
     if (it == color_list.end())
-        throw std::invalid_argument("Error: uncorrect arguments!!!");
+        return -1;
+    
+    return it->value;
+}
+
+int Terminal::parseBackgroundColor(const std::vector<std::string> &argv) {
+    int argc = argv.size();
+    if (argc == 1)
+        return BackgroundColorCode::BLACK;
+
+    if (argc != 3 || argv[1] != "--color")
+        return -1;
+
+    auto it = findCommandToColor(argv[2]);
+    if (it == color_list.end())
+        return -1;
 
     return it->value;
 }
@@ -64,6 +83,17 @@ Terminal::Terminal(int argc, char **argv, Logger &initLogger)
     : terminalBackgroundColorCode(parseBackgroundColor(argc, argv))
     , rawModeEnabled(false)
     , termLogger(initLogger) {
+    if (terminalBackgroundColorCode == -1) 
+        throw std::invalid_argument("Error: uncorrect arguments!!!");
+    updateTerminalColor();
+}
+
+Terminal::Terminal(const std::vector<std::string> &argv, Logger &initLogger)
+    : terminalBackgroundColorCode(parseBackgroundColor(argv))
+    , rawModeEnabled(false)
+    , termLogger(initLogger) {
+    if (terminalBackgroundColorCode == -1) 
+        throw std::invalid_argument("Error: uncorrect arguments!!!");
     updateTerminalColor();
 }
 
