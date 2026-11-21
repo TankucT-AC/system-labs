@@ -35,22 +35,22 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    pid_t pid = -1;
+    pid_t pidProgramA = -1;
     char *argvProgramA[] = {//
         const_cast<char *>("alacritty"),
         const_cast<char *>("-e"),
         const_cast<char *>(pathProgramA.c_str()),
         NULL};
     int err = posix_spawn(
-        &pid, "/usr/bin/alacritty", nullptr, nullptr, argvProgramA, environ);
+        &pidProgramA, "/usr/bin/alacritty", nullptr, nullptr, argvProgramA, environ);
     if (err != 0) {
         std::cerr << std::format("ERROR {}: failed to call 'posix_spawn'", err)
                   << std::endl;
         return 1;
     }
 
-    if (pid < 0) {
-        std::cerr << std::format("ERROR {}: failed to create program_a", pid);
+    if (pidProgramA < 0) {
+        std::cerr << std::format("ERROR {}: failed to create program_a", pidProgramA);
     }
 
     // Создаем FIFO канал
@@ -65,8 +65,8 @@ int main(int argc, char *argv[]) {
     terminal.enableRawMode();
     while (true) {
         int status = 0;
-        int return_pid = waitpid(pid, &status, WNOHANG);
-        if (return_pid == pid) {
+        int return_pid = waitpid(pidProgramA, &status, WNOHANG);
+        if (return_pid == pidProgramA) {
             std::cerr << "ERROR: program_a is dead" << std::endl;
             break;
         } else if (return_pid == -1) {
